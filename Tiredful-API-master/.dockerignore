@@ -1,0 +1,7 @@
+
+# Ignore any images
+*.jpg
+
+# Ignore license and readme files if they are not needed in the repository
+LICENSE
+README.md
