@@ -1,40 +1,21 @@
-name: CI/CD
+name: Django                                  # workflow name
 
 on:
   push:
-    branches:
+    branches:                                 # similar to "only" in GitLab
       - main
 
-jobs:        
-  safety:
-    runs-on: ubuntu-22.04    
+jobs:
+  safety-check:
+    runs-on: ubuntu-22.04
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'   
-   
-      - name: Run Safety Check
-        run: |
-          pip install safety
-          mkdir -p safety-results
-          safety check -r Tiredful-API-master/requirements.txt --save-json safety-results/requirements.json
-        continue-on-error: true
+      - run: docker run --rm -v $(pwd):/src hysnsec/safety check -r Tiredful-API-master/requirements.txt --json > safety-results.json
+        continue-on-error: true             
 
-      - name: Run Safety Scan
-        env:
-          SAFETY_API_KEY: ${{ secrets.SAFETY_API_KEY }}
-        run: |
-          safety scan . --save-as json safety-results/app-results.json --api-key $SAFETY_API_KEY
-        continue-on-error: true
-
-      - name: Upload Safety Artifact
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
           name: Safety
-          path: safety-results/*
-        if: always()  
-
+          path: safety-results.json
+        if: always()
