@@ -8,6 +8,7 @@ on:
 jobs:
   test:
     runs-on: ubuntu-22.04
+    steps:
       - name: Setup python
         uses: actions/setup-python@v5
         with:
