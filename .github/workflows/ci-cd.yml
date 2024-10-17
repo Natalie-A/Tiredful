@@ -46,4 +46,17 @@ jobs:
         with:
           name: Snyk
           path: snyk-results.json
-        if: always() 
+        if: always()
+
+  hadolint:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Hadolint
+        uses: hadolint/hadolint-action@v4
+        with:
+          hadolint_file: Tiredful-API-master/Dockerfile
+          failure-threshold: warning
+
