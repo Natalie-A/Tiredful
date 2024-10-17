@@ -37,7 +37,7 @@ jobs:
         run: pip install -r Tiredful-API-master/requirements.txt
 
       - name: Run Snyk
-        run: snyk test --file=Tiredful-API-master/requirements.txt --package-manager=pip --json > snyk-results.json
+        run: snyk code test --json-file-output=snyk-results.json --severity-threshold=HIGH
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         continue-on-error: true    
