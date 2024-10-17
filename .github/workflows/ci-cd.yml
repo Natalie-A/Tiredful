@@ -57,6 +57,13 @@ jobs:
       - name: Run Hadolint
         uses: hadolint/hadolint-action@v3.1.0        
         with:
-          hadolint_file: Tiredful-API-master/Dockerfile
+          dockerfile: Tiredful-API-master/Dockerfile
           failure-threshold: warning
+          format: json
+          output-file: hadolint.json
 
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Hadolint
+          path: hadolint.json
+        if: always()
