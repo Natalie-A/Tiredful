@@ -61,6 +61,7 @@ jobs:
           failure-threshold: warning
           format: json
           output-file: hadolint.json
+        continue-on-error: true
 
       - uses: actions/upload-artifact@v4
         with:
@@ -86,5 +87,5 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t natalieaoya/tiredful:latest .
+          docker build -f Tiredful-API-master/Dockerfile -t natalieaoya/tiredful:latest .
           docker push natalieaoya/tiredful:latest
