@@ -37,7 +37,7 @@ jobs:
         run: pip install -r Tiredful-API-master/requirements.txt
 
       - name: Run Snyk
-        run: snyk code test --json-file-output=snyk-results.json --severity-threshold=HIGH
+        run: snyk code test --json-file-output=snyk-results.json --severity-threshold=high
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         continue-on-error: true    
@@ -55,7 +55,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Run Hadolint
-        uses: hadolint/hadolint-action@v4
+        uses: hadolint/hadolint-action@v3
         with:
           hadolint_file: Tiredful-API-master/Dockerfile
           failure-threshold: warning
