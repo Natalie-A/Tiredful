@@ -1,8 +1,8 @@
-name: Django                                  # workflow name
+name: Tiredful
 
 on:
   push:
-    branches:                                 # similar to "only" in GitLab
+    branches:                                
       - main
 
 jobs:
@@ -11,7 +11,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - run: docker run --rm -v $(pwd):/src hysnsec/safety check -r Tiredful-API-master/requirements.txt --json > safety-results.json
+      - run: docker run --rm -v $(pwd):/src hysnsec/safety check -r requirements.txt --json > safety-results.json
         continue-on-error: true             
 
       - uses: actions/upload-artifact@v4
@@ -34,7 +34,7 @@ jobs:
           python-version: '3.12'
 
       - name: Install Python modules
-        run: pip install -r Tiredful-API-master/requirements.txt
+        run: pip install -r requirements.txt
 
       - name: Run Snyk
         run: snyk code test --json-file-output=snyk-results.json --severity-threshold=high
@@ -57,7 +57,7 @@ jobs:
       - name: Run Hadolint
         uses: hadolint/hadolint-action@v3.1.0        
         with:
-          dockerfile: Tiredful-API-master/Dockerfile
+          dockerfile: Dockerfile
           failure-threshold: warning
           format: json
           output-file: hadolint.json
@@ -87,5 +87,5 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -f Tiredful-API-master/Dockerfile -t natalieaoya/tiredful:latest .
+          docker build -t natalieaoya/tiredful:latest .
           docker push natalieaoya/tiredful:latest
