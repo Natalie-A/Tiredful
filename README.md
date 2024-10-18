@@ -2,7 +2,7 @@
 
 Tiredful API is an intentionally designed broken app that aims to educate developers, QA professionals, and security experts about vulnerabilities present in web services (REST APIs) due to insecure coding practices.
 
-I developed this project together with my grouo in the Devsecops Cybergirls 4.0 Cohort to demonstrate how to build secure Docker images. We focused on several key aspects:
+I developed this project together with my group in the Devsecops Cybergirls 4.0 Cohort to demonstrate how to build secure Docker images. We focused on several key aspects:
 
 - **Security Scans**: We utilized tools such as Safety, Hadolint, and Snyk to scan for and fix security vulnerabilities within our Docker images. These tools help identify issues related to dependencies, Dockerfile best practices, and known vulnerabilities.
 
@@ -44,7 +44,8 @@ Before you begin, ensure you have the following installed:
    ```
 
 ## 3. Test
+Run ``` kubectl get nodes -o wide ``` to find the cluster IP
 Open a browser and go to URL
 ```
-http://localhost:30000                           
+http://<Cluster Internal IP>:30000                           
 ```
