@@ -114,7 +114,7 @@ jobs:
           path: image-scan.json
         if: always()
 
- deploy:
+  deploy:
     runs-on: ubuntu-22.04
     needs: image-scan
 
