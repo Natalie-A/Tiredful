@@ -26,10 +26,6 @@ jobs:
     steps:
       - uses: actions/checkout@master
       - uses: snyk/actions/setup@master
-      - uses: actions/setup-go@v5
-        with:
-          go-version: "1.23"
-
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -95,13 +91,10 @@ jobs:
 
   image-scan:
     runs-on: ubuntu-22.04
+    needs: build
     steps:
       - uses: actions/checkout@master
       - uses: snyk/actions/setup@master
-      - uses: actions/setup-go@v5
-        with:
-          go-version: "1.23"
-
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -120,3 +113,22 @@ jobs:
           name: Image Scan
           path: image-scan.json
         if: always()
+
+ deploy:
+    runs-on: ubuntu-22.04
+    needs: image-scan
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up K0s
+        run: |
+          curl --proto '=https' --tlsv1.2 -sSf https://get.k0s.sh | sudo sh
+          sudo k0s install controller --single
+          sudo k0s start
+
+      - name: Deploy to K0s
+        run: |
+          kubectl apply -f deployment.yaml
+          kubectl apply -f service.yaml
