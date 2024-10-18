@@ -128,14 +128,8 @@ jobs:
           sudo k0s install controller --single
           sudo k0s start
 
-      - name: Get Nodes
-        run: |
-          sleep 30 # Wait for k0s to start
-          sudo k0s kubectl get nodes
-          kubectl api-versions
-          kubectl config current-context
-
       - name: Deploy to K0s
         run: |
+          sleep 30
           kubectl apply -f deployment.yaml
           kubectl apply -f service.yaml
