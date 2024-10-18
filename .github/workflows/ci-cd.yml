@@ -114,6 +114,7 @@ jobs:
           path: image-scan.json
         if: always()
 
+
   deploy:
     runs-on: ubuntu-22.04
     needs: image-scan
@@ -122,14 +123,20 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up K0s
-        run: |
-          curl --proto '=https' --tlsv1.2 -sSf https://get.k0s.sh | sudo sh
-          sudo k0s install controller --single
-          sudo k0s start
+      - name: Set up Kind
+        uses: helm/kind-action@v1
+        with:
+          version: v0.21.0
 
-      - name: Deploy to K0s
+      - name: Create Kind cluster
+        run: kind create cluster --name tiredful
+
+      - name: Load Docker image into Kind
         run: |
-          sleep 30
+          sudo docker pull natalieaoya/tiredful:latest
+          sudo kind load docker-image natalieaoya/tiredful:latest --name tiredful
+
+      - name: Apply Kubernetes manifests
+        run: |
           kubectl apply -f deployment.yaml
           kubectl apply -f service.yaml
