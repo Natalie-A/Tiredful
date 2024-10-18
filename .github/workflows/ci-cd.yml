@@ -132,6 +132,8 @@ jobs:
         run: |
           sleep 30 # Wait for k0s to start
           sudo k0s kubectl get nodes
+          kubectl api-versions
+          kubectl config current-context
 
       - name: Deploy to K0s
         run: |
