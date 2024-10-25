@@ -140,6 +140,7 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no "$EC2_USER@$EC2_HOST" << 'EOF'
             # Apply the deployment using kubectl
-            kubectl apply -f deployment.yaml
-            kubectl apply -f service.yaml
+            kubectl apply -f /tmp/deployment.yaml
+            kubectl apply -f /tmp/
+            service.yaml
           EOF
