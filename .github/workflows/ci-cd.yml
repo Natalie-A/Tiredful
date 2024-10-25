@@ -123,20 +123,18 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Kind
-        uses: helm/kind-action@v1
+      - name: Set up SSH agent
+        uses: webfactory/ssh-agent@v0.9.0
         with:
-          version: v0.21.0
+          ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
 
-      - name: Create Kind cluster
-        run: kind create cluster --name tiredful
-
-      - name: Load Docker image into Kind
+      - name: Deploy to EC2
+        env:
+          EC2_USER: ${{ secrets.EC2_USER }}
+          EC2_HOST: ${{ secrets.EC2_HOST }}
         run: |
-          sudo docker pull natalieaoya/tiredful:latest
-          sudo kind load docker-image natalieaoya/tiredful:latest --name tiredful
-
-      - name: Apply Kubernetes manifests
-        run: |
-          kubectl apply -f deployment.yaml
-          kubectl apply -f service.yaml
+          ssh -o StrictHostKeyChecking=no "$EC2_USER@$EC2_HOST" << 'EOF'
+            # Apply the deployment using kubectl
+            kubectl apply -f deployment.yaml
+            kubectl apply -f service.yaml
+          EOF
