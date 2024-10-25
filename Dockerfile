@@ -1,30 +1,42 @@
-FROM alpine:3.20
-LABEL maintainer="jsvazic@gmail.com"
+# Stage 1: Build Stage
+FROM python:3.10-slim AS builder
 
-COPY . /app/
+# Set the working directory in the container
+WORKDIR /app
 
-# Install the required packages
+# Copy only the requirements file first to leverage caching
+COPY requirements.txt .
+
+# Install required packages
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy the rest of the application code
+COPY . .
+
+# Stage 2: Production Stage
+FROM alpine:latest
+
+# Install only the necessary runtime packages
 RUN apk add --no-cache \
     python3 \
-    python3-dev \
-    py3-pip \
-    build-base \
     ca-certificates
 
-# Create a virtual environment and install requirements
-RUN python3 -m venv /app/venv \
-  && /app/venv/bin/pip install --upgrade pip \
-  && /app/venv/bin/pip install --no-cache-dir -r /app/requirements.txt
+# Set the working directory in the production container
+WORKDIR /app
 
-RUN addgroup --gid 1001 pythongroup && \
-    adduser --uid 1001 --ingroup pythongroup --system --no-create-home pythonuser
+# Copy the built application from the builder stage
+COPY --from=builder /app /app
 
-WORKDIR /app/Tiredful-API
+# Create a user and group for running the application
+RUN addgroup -S pythongroup && \
+    adduser -S pythonuser -G pythongroup
 
+# Switch to the non-root user
 USER pythonuser
 
+# Expose the application port
 EXPOSE 8000
 
-# Use the virtual environment to run your app
-CMD ["/app/venv/bin/python", "manage.py", "runserver", "0.0.0.0:8000"]
+# Run the application using the system's Python
+CMD ["python3", "manage.py", "runserver", "0.0.0.0:8000"]
 
