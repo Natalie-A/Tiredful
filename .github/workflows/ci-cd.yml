@@ -128,6 +128,11 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
 
+      - name: Copy deployment files to EC2
+        run: |
+          scp -o StrictHostKeyChecking=no -r deployment.yaml ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/tmp/deployment.yaml
+          scp -o StrictHostKeyChecking=no -r service.yaml ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/tmp/service.yaml
+
       - name: Deploy to EC2
         env:
           EC2_USER: ${{ secrets.EC2_USER }}
