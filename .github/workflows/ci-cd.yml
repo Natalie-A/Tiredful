@@ -125,8 +125,8 @@ jobs:
 
       - name: Set up SSH
         env:
-          PROD_SSH_PRIVKEY: ${{ secrets.EC2_SSH_KEY }}
-          PROD_HOSTNAME: ${{ secrets.EC2_HOST }}
+          EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
+          EC2_HOST: ${{ secrets.EC2_HOST }}
         run: |
           mkdir -p ~/.ssh
           echo "$EC2_SSH_KEY" > ~/.ssh/id_rsa
