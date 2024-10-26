@@ -138,10 +138,6 @@ jobs:
           EC2_HOST: ${{ secrets.EC2_HOST }}
         run: |
           ssh -o StrictHostKeyChecking=no "$EC2_USER@$EC2_HOST" << 'EOF'
-            # Ensure the file paths are correct on the EC2 instance
-            ls /home/$EC2_USER/deployment.yaml
-            ls /home/$EC2_USER/service.yaml
-
-            kubectl apply -f /home/$EC2_USER/deployment.yaml --validate=false
-            kubectl apply -f /home/$EC2_USER/service.yaml --validate=false
+            kubectl apply -f /home/"$EC2_USER"/deployment.yaml --validate=false
+            kubectl apply -f /home/"$EC2_USER"/service.yaml --validate=false
           EOF
