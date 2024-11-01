@@ -134,5 +134,5 @@ jobs:
           scp -i private_key -o StrictHostKeyChecking=no -r service.yaml ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/${{ secrets.EC2_USER }}/service.yaml
 
           ssh -o StrictHostKeyChecking=no -i private_key ${EC2_USER}@${EC2_HOST} '
-          kubectl apply -f /home/"$EC2_USER"/deployment.yaml
-          kubectl apply -f /home/"$EC2_USER"/service.yaml '
+          kubectl apply -f /home/$EC2_USER/deployment.yaml
+          kubectl apply -f /home/$EC2_USER/service.yaml '
