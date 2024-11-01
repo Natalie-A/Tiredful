@@ -7,7 +7,7 @@ on:
 
 jobs:
   oast-safety:
-    runs-on: self-hosted
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
 
@@ -21,7 +21,7 @@ jobs:
         if: always()
 
   sast-snyk:
-    runs-on: self-hosted
+    runs-on: ubuntu-22.04
     needs: oast-safety
     steps:
       - name: Checkout the code
@@ -42,7 +42,7 @@ jobs:
         if: always()
 
   sast-hadolint:
-    runs-on: self-hosted
+    runs-on: ubuntu-22.04
     needs: sast-snyk
     steps:
       - name: Checkout code
@@ -64,7 +64,7 @@ jobs:
         if: always()
 
   build:
-    runs-on: self-hosted
+    runs-on: ubuntu-22.04
     needs: sast-hadolint
 
     steps:
@@ -86,7 +86,7 @@ jobs:
           docker push natalieaoya/tiredful:latest
 
   image-scan:
-    runs-on: self-hosted
+    runs-on: ubuntu-22.04
     needs: build
     steps:
       - name: Checkout the code
