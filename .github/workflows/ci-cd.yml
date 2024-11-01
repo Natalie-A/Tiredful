@@ -7,7 +7,7 @@ on:
 
 jobs:
   oast-safety:
-    runs-on: ubuntu-22.04
+    runs-on: self-hosted
     steps:
       - uses: actions/checkout@v4
 
@@ -21,20 +21,16 @@ jobs:
         if: always()
 
   sast-snyk:
-    runs-on: ubuntu-22.04
+    runs-on: self-hosted
     needs: oast-safety
     steps:
-      - uses: actions/checkout@master
-      - uses: snyk/actions/setup@master
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-
-      - name: Install Python modules
-        run: pip install -r requirements.txt
+      - name: Checkout the code
+        uses: actions/checkout@master
 
       - name: Run Snyk
-        run: snyk code test --json-file-output=snyk-results.json --severity-threshold=high
+        uses: snyk/actions/python@master
+        with:
+          args: --json-file-output=snyk-results.json --severity-threshold=high
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         continue-on-error: true    
@@ -46,7 +42,7 @@ jobs:
         if: always()
 
   sast-hadolint:
-    runs-on: ubuntu-22.04
+    runs-on: self-hosted
     needs: sast-snyk
     steps:
       - name: Checkout code
@@ -68,7 +64,7 @@ jobs:
         if: always()
 
   build:
-    runs-on: ubuntu-22.04
+    runs-on: self-hosted
     needs: sast-hadolint
 
     steps:
@@ -90,20 +86,17 @@ jobs:
           docker push natalieaoya/tiredful:latest
 
   image-scan:
-    runs-on: ubuntu-22.04
+    runs-on: self-hosted
     needs: build
     steps:
-      - uses: actions/checkout@master
-      - uses: snyk/actions/setup@master
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-
-      - name: Install Python modules
-        run: pip install -r requirements.txt
+      - name: Checkout the code
+        uses: actions/checkout@master
 
       - name: Run Snyk
-        run: snyk test --docker natalieaoya/tiredful:latest --json-file-output=image-scan.json --severity-threshold=high
+        uses: snyk/actions/docker@master
+        with:
+          args: --json-file-output=image-scan.json --severity-threshold=high
+          image: natalieaoya/tiredful:latest
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         continue-on-error: true    
@@ -116,28 +109,14 @@ jobs:
 
 
   deploy:
-    runs-on: ubuntu-22.04
+    runs-on: self-hosted
     needs: image-scan
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up SSH agent
-        uses: webfactory/ssh-agent@v0.9.0
-        with:
-          ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
-
-      - name: Copy deployment files to EC2
-        run: |
-          scp -o StrictHostKeyChecking=no -r deployment.yaml ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/${{ secrets.EC2_USER }}/deployment.yaml
-          scp -o StrictHostKeyChecking=no -r service.yaml ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/${{ secrets.EC2_USER }}/service.yaml
       - name: Deploy on EC2
-        env:
-          EC2_USER: ${{ secrets.EC2_USER }}
-          EC2_HOST: ${{ secrets.EC2_HOST }}
         run: |
-          ssh -o StrictHostKeyChecking=no "$EC2_USER@$EC2_HOST" << 'EOF'
-            kubectl apply -f /home/"$EC2_USER"/deployment.yaml --validate=false
-            kubectl apply -f /home/"$EC2_USER"/service.yaml --validate=false
-          EOF
+            kubectl apply -f deployment.yaml
+            kubectl apply -f service.yaml
