@@ -14,7 +14,10 @@ spec:
     spec:
       containers:
       - name: tiredful
-        image: natalieaoya/tiredful
+        image: natalieaoya/tiredful:latest
+        securityContext:
+            allowPrivilegeEscalation: false
+            runAsNonRoot: true
         ports:
         - containerPort: 8000 
 

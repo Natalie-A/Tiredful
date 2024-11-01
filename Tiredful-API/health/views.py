@@ -44,7 +44,7 @@ def get_activity(request):
                 month_requested = request.data['month']
                 try:
                     activity_detail = Tracker.objects.raw(
-                        'Select * from health_tracker where month=%s' % month_requested)
+                        'Select * from health_tracker where month = %s', [month_requested])
                     final_serialized_data = []
                     for activity in activity_detail:
                         serializer = TrackerSerializers(activity)

@@ -1,5 +1,5 @@
 # Stage 1: Build Stage
-FROM python:3.11-slim AS builder
+FROM python:3.13-slim AS builder
 
 # Set working directory
 WORKDIR /app
@@ -14,7 +14,7 @@ RUN python3 -m venv /app/venv \
 COPY . .
 
 # Stage 2: Production Stage
-FROM python:3.11-slim
+FROM python:3.13-slim
 
 # Set working directory
 WORKDIR /app/Tiredful-API

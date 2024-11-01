@@ -20,7 +20,7 @@ https://docs.djangoproject.com/en/1.11/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.11/ref/settings/
 """
-
+from dotenv import load_dotenv
 import os
 
 
@@ -33,8 +33,10 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'han4v+at1&s0t4_h^g##ch@&w1b-kzf*drl166prl+*=m@e+zn'
+load_dotenv()
+
+# Get the secret key from the environment variable, with a default value for development
+SECRET_KEY = os.getenv('SECRET_KEY', 'dummy-insecure-default-secret-key')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
