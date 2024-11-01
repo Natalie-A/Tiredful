@@ -24,13 +24,17 @@ jobs:
     runs-on: ubuntu-22.04
     needs: oast-safety
     steps:
-      - name: Checkout the code
-        uses: actions/checkout@master
+      - uses: actions/checkout@master
+      - uses: snyk/actions/setup@master
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Python modules
+        run: pip install -r requirements.txt
 
       - name: Run Snyk
-        uses: snyk/actions/python@master
-        with:
-          args: --json-file-output=snyk-results.json --severity-threshold=high
+        run: snyk code test --json-file-output=snyk-results.json --severity-threshold=high
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         continue-on-error: true    
@@ -84,19 +88,21 @@ jobs:
         run: |
           docker build -t natalieaoya/tiredful:latest .
           docker push natalieaoya/tiredful:latest
-
   image-scan:
     runs-on: ubuntu-22.04
     needs: build
     steps:
-      - name: Checkout the code
-        uses: actions/checkout@master
+      - uses: actions/checkout@master
+      - uses: snyk/actions/setup@master
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Python modules
+        run: pip install -r requirements.txt
 
       - name: Run Snyk
-        uses: snyk/actions/docker@master
-        with:
-          args: --json-file-output=image-scan.json --severity-threshold=high
-          image: natalieaoya/tiredful:latest
+        run: snyk test --docker natalieaoya/tiredful:latest --json-file-output=image-scan.json --severity-threshold=high
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         continue-on-error: true    
@@ -109,14 +115,34 @@ jobs:
 
 
   deploy:
-    runs-on: self-hosted
+    runs-on: ubuntu-22.04
     needs: image-scan
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Deploy on EC2
+      - name: Set up SSH
+        env:
+          EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
+          EC2_HOST: ${{ secrets.EC2_HOST }}
         run: |
-            kubectl apply -f deployment.yaml
-            kubectl apply -f service.yaml
+          mkdir -p ~/.ssh
+          echo "$EC2_SSH_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          eval "$(ssh-agent -s)"
+          ssh-add ~/.ssh/id_rsa
+          ssh-keyscan -t rsa $EC2_HOST >> ~/.ssh/known_hosts
+      - name: Copy deployment files to EC2
+        run: |
+          scp -o StrictHostKeyChecking=no -r deployment.yaml ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/${{ secrets.EC2_USER }}/deployment.yaml
+          scp -o StrictHostKeyChecking=no -r service.yaml ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/${{ secrets.EC2_USER }}/service.yaml
+      - name: Deploy on EC2
+        env:
+          EC2_USER: ${{ secrets.EC2_USER }}
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+        run: |
+          ssh -o StrictHostKeyChecking=no "$EC2_USER@$EC2_HOST" << 'EOF'
+            kubectl apply -f /home/ubuntu/deployment.yaml --validate=false
+            kubectl apply -f /home/ubuntu/service.yaml --validate=false
+          EOF
