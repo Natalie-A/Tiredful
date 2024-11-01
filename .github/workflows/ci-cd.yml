@@ -130,8 +130,8 @@ jobs:
         run: |
           echo "$EC2_SSH_KEY" > private_key && chmod 600 private_key
 
-          scp -o StrictHostKeyChecking=no -r deployment.yaml ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/${{ secrets.EC2_USER }}/deployment.yaml
-          scp -o StrictHostKeyChecking=no -r service.yaml ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/${{ secrets.EC2_USER }}/service.yaml
+          scp -i private_key -o StrictHostKeyChecking=no -r deployment.yaml ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/${{ secrets.EC2_USER }}/deployment.yaml
+          scp -i private_key -o StrictHostKeyChecking=no -r service.yaml ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/${{ secrets.EC2_USER }}/service.yaml
 
           ssh -o StrictHostKeyChecking=no -i private_key ${EC2_USER}@${EC2_HOST} '
           kubectl apply -f /home/"$EC2_USER"/deployment.yaml
