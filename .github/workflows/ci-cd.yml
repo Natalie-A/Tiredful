@@ -130,9 +130,9 @@ jobs:
         run: |
           echo "$EC2_SSH_KEY" > private_key && chmod 600 private_key
 
-          scp -i private_key -o StrictHostKeyChecking=no -r Tiredful/ ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/${{ secrets.EC2_USER }}/
+          scp -i private_key -o StrictHostKeyChecking=no -r ./* ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/${{ secrets.EC2_USER }}/
 
           ssh -o StrictHostKeyChecking=no -i private_key ${EC2_USER}@${EC2_HOST} '
-          cd /home/ubuntu/Tiredful
+          cd /home/ubuntu/app/Tiredful-API
           sudo k0s kubectl apply -f deployment.yaml
           sudo k0s kubectl apply -f service.yaml '
