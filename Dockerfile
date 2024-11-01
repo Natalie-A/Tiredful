@@ -1,11 +1,18 @@
 # Stage 1: Build Stage
-FROM python:3.14-slim AS builder
+FROM python:3.14-rc-slim-bookworm AS builder
 
 # Set working directory
 WORKDIR /app
 
 # Install dependencies
 COPY requirements.txt ./
+
+RUN apt-get update && apt-get install -y \
+    gcc \
+    libffi-dev \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
 RUN python3 -m venv /app/venv \
   && /app/venv/bin/pip install --upgrade pip \
   && /app/venv/bin/pip install --no-cache-dir -r requirements.txt
@@ -14,7 +21,7 @@ RUN python3 -m venv /app/venv \
 COPY . .
 
 # Stage 2: Production Stage
-FROM python:3.14-slim
+FROM python:3.14-rc-slim-bookworm
 
 # Set working directory
 WORKDIR /app/Tiredful-API
