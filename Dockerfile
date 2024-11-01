@@ -4,8 +4,7 @@ FROM python:3.10-slim AS builder
 # Set the working directory in the container
 WORKDIR /app
 
-# Copy only the requirements file first to leverage caching
-COPY requirements.txt .
+COPY . .
 
 # Install required packages
 RUN pip install --no-cache-dir -r requirements.txt
